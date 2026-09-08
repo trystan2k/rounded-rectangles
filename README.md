@@ -17,7 +17,24 @@ handle to change the radius of **all four corners** at once.
   and does not ship to production; the production bundle is a single JS file +
   CSS.
 
+## Documentation
+
+Deep-dive documentation lives in [`docs/`](./docs/README.md):
+
+- an **architecture overview** of the methodology — model/view separation,
+  single source of truth, the change-event → re-render data flow — with
+  diagrams (`docs/02-architecture-overview.md`),
+- a **file-by-file explanation** of every module and component: what it does,
+  how it works, and _why_ it was built that way (`docs/03` – `docs/11`),
+- a **crash course** covering the React/JS/TS/SVG concepts used, for readers
+  unfamiliar with the stack (`docs/01`),
+- the **styling** rationale (`docs/13`), the **bootstrap** sequence
+  (`docs/12`) and the **testing strategy** (`docs/14`).
+
 ## Running
+
+Requires **pnpm ≥ 10** (`corepack enable` once, if needed; npm is not
+supported).
 
 ```bash
 pnpm install
@@ -32,8 +49,28 @@ pnpm format:check  # verify formatting (formatting is enforced on staged files)
 ```
 
 To try it on a tablet, run `pnpm dev -- --host` and open the printed
-network URL from the device (same Wi-Fi). Any static host (GitHub Pages,
-Netlify, etc.) can serve `dist/`.
+network URL from the device (same Wi-Fi). The production deployment is served
+by **Vercel** — see [Deployment & CI/CD](#deployment--cicd) below.
+
+## Deployment & CI/CD
+
+The app is deployed on **Vercel** (project `rounded-rectangles`, Vite
+framework preset). Deployment is fully automated by the GitHub Actions
+workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml):
+
+- **Triggers** — every push to `main` and every pull request targeting `main`.
+  A concurrency group cancels superseded runs on the same ref.
+- **Validation pipeline** (fails fast, in order): install with frozen lockfile
+  → `oxlint` → `oxfmt --check` → unit tests (Vitest) → Playwright end-to-end
+  tests against the production build → production build (`tsc -b && vite
+build`).
+- **Deploy gate** — the deploy step runs only if _all_ checks pass **and** the
+  event is a push to `main`. Pull requests are validated only, never deployed.
+- **Deployment** — the official Vercel CLI (`npx vercel deploy --prod`),
+  authenticated with the repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`
+  and `VERCEL_PROJECT_ID`. The resulting production URL is written to the
+  run's summary page (and is visible in the Vercel dashboard under the
+  project).
 
 ## Interactions
 
