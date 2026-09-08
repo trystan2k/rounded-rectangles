@@ -1,0 +1,92 @@
+:root {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
+#stage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.rectangle rect {
+  stroke-width: 1.5;
+  cursor: move;
+}
+
+/* Selected: wider border, in the bright companion color of the fill. */
+.rectangle.active rect {
+  stroke-width: 4;
+}
+
+.rectangle .radius-handle {
+  fill: #ffffff;
+  stroke: #1e88e5;
+  stroke-width: 2;
+  cursor: grab;
+}
+
+.rectangle.active .radius-handle {
+  stroke-width: 3;
+  cursor: grabbing;
+}
+
+.rectangle .radius-handle-hit {
+  fill: none;
+  pointer-events: all;
+  cursor: grab;
+}
+
+.hint {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  max-width: 92%;
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background: rgba(33, 33, 33, 0.78);
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.toolbar {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+}
+
+.toolbar button {
+  padding: 6px 14px;
+  border: 1px solid #b9c4cf;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar button:hover {
+  background: #f2f6fa;
+}
