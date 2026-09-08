@@ -19,8 +19,11 @@ handle to change the radius of **all four corners** at once.
 
 ## Running
 
-Requires **pnpm ≥ 10** (`corepack enable` once, if needed; npm is not
-supported).
+Requires **pnpm ≥ 10**, pinned via the `packageManager` field in
+`package.json` (`corepack enable` once, if needed — the exact pnpm version is
+then installed automatically). Using npm or yarn is **blocked**: a
+`preinstall` guard (`only-allow pnpm`) aborts the install with a clear
+message.
 
 ```bash
 pnpm install

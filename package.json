@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
@@ -42,5 +43,6 @@
     "*.{json,jsonc,css,html,md}": [
       "oxfmt --write"
     ]
-  }
+  },
+  "packageManager": "pnpm@10.27.0"
 }

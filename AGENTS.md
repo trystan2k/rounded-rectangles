@@ -4,7 +4,7 @@ Single-page rounded-rectangle editor (Xara client dev test). Vite + React 19 + T
 
 ## Package manager: pnpm (mandatory)
 
-npm breaks on `oxfmt`'s peer chain (`workspace:` protocol) — never use it. pnpm ≥ 10 (enable once with `corepack enable`).
+npm breaks on `oxfmt`'s peer chain (`workspace:` protocol) — never use it. pnpm ≥ 10 (enable once with `corepack enable`). Enforcement: `packageManager` pins pnpm@10.27.0 (Corepack auto-installs it) and a `preinstall` guard (`npx only-allow pnpm`) aborts npm/yarn installs. CI reads the pnpm version from `packageManager`.
 
 ```bash
 pnpm install            # also activates husky hooks (prepare script)
