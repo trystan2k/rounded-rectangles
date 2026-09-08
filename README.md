@@ -24,7 +24,16 @@ supported).
 
 ```bash
 pnpm install
-pnpm dev           # dev server (prints a local URL)
+pnpm dev           # dev server (prints a local URL
+```
+
+To try it on a tablet, run `pnpm dev -- --host` and open the printed
+network URL from the device (same Wi-Fi). The production deployment is served
+by **Vercel** — see [Deployment & CI/CD](#deployment--cicd) below.
+
+## Oher commands
+
+```bash
 pnpm build         # type-checks and produces dist/
 pnpm preview       # serves the production build
 pnpm test          # unit tests (Vitest)
@@ -33,10 +42,6 @@ pnpm lint          # oxlint
 pnpm format        # format the code with oxfmt
 pnpm format:check  # verify formatting (formatting is enforced on staged files)
 ```
-
-To try it on a tablet, run `pnpm dev -- --host` and open the printed
-network URL from the device (same Wi-Fi). The production deployment is served
-by **Vercel** — see [Deployment & CI/CD](#deployment--cicd) below.
 
 ## Deployment & CI/CD
 
