@@ -9,11 +9,9 @@ declare global {
   }
 }
 
-const group = (page: Page, id: number): Locator =>
-  page.locator(`g[aria-label="Rectangle ${id}"]`);
+const group = (page: Page, id: number): Locator => page.locator(`g[aria-label="Rectangle ${id}"]`);
 const body = (page: Page, id: number): Locator => group(page, id).locator('rect');
-const handle = (page: Page, id: number): Locator =>
-  group(page, id).locator('circle.radius-handle');
+const handle = (page: Page, id: number): Locator => group(page, id).locator('circle.radius-handle');
 
 const modelOf = (page: Page, id: number) =>
   page.evaluate((rectId) => window.application!.getRectById(rectId)!.toJSON(), id);
@@ -38,7 +36,12 @@ test.describe('rounded rectangle editor', () => {
 
     await expect(page.locator('g.rectangle')).toHaveCount(3);
     expect(await modelOf(page, 0)).toEqual({
-      id: 0, x: 100, y: 100, width: 200, height: 150, radius: 10,
+      id: 0,
+      x: 100,
+      y: 100,
+      width: 200,
+      height: 150,
+      radius: 10,
     });
     await expect(body(page, 0)).toHaveAttribute('x', '100');
     await expect(body(page, 0)).toHaveAttribute('rx', '10');
@@ -84,7 +87,12 @@ test.describe('rounded rectangle editor', () => {
     );
 
     expect(await modelOf(page, 0)).toEqual({
-      id: 0, x: 220, y: 160, width: 200, height: 150, radius: 10,
+      id: 0,
+      x: 220,
+      y: 160,
+      width: 200,
+      height: 150,
+      radius: 10,
     });
   });
 
@@ -95,8 +103,13 @@ test.describe('rounded rectangle editor', () => {
     // Dragging to (240, 160) leaves a distance of sqrt(60^2 + 60^2) to the
     // corner, i.e. radius 60.
     const box = (await handle(page, 0).boundingBox())!;
-    await drag(page, box.x + box.width / 2, box.y + box.height / 2,
-      box.x + box.width / 2 - 50, box.y + box.height / 2 + 50);
+    await drag(
+      page,
+      box.x + box.width / 2,
+      box.y + box.height / 2,
+      box.x + box.width / 2 - 50,
+      box.y + box.height / 2 + 50,
+    );
 
     expect((await modelOf(page, 0)).radius).toBeCloseTo(60, 5);
 
@@ -113,9 +126,7 @@ test.describe('rounded rectangle editor', () => {
 
     // The handle follows the pointer onto the new corner arc.
     const circle = await page.evaluate(() => {
-      const c = document.querySelector(
-        'g[aria-label="Rectangle 0"] circle.radius-handle',
-      )!;
+      const c = document.querySelector('g[aria-label="Rectangle 0"] circle.radius-handle')!;
       return { cx: parseFloat(c.getAttribute('cx')!), cy: parseFloat(c.getAttribute('cy')!) };
     });
     expect(circle.cx).toBeCloseTo(240, 5);
@@ -126,8 +137,13 @@ test.describe('rounded rectangle editor', () => {
     await page.goto('/');
 
     const box = (await handle(page, 0).boundingBox())!;
-    await drag(page, box.x + box.width / 2, box.y + box.height / 2,
-      box.x + box.width / 2 + 300, box.y + box.height / 2 + 200);
+    await drag(
+      page,
+      box.x + box.width / 2,
+      box.y + box.height / 2,
+      box.x + box.width / 2 + 300,
+      box.y + box.height / 2 + 200,
+    );
 
     // maxRadius = min(200, 150) / 2
     expect((await modelOf(page, 0)).radius).toBe(75);

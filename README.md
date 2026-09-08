@@ -10,19 +10,25 @@ handle to change the radius of **all four corners** at once.
 - **No other runtime dependencies.** All geometry, interaction and state
   management is hand-written. The model layer (`src/rectangle.ts`,
   `src/application.ts`) is plain TypeScript with zero framework knowledge.
-- Build tooling (Vite, Vitest, oxlint, Playwright) is dev-only and does not
-  ship to production; the production bundle is a single JS file + CSS.
+- Code style is enforced by **oxfmt** (React-recommended options, see
+  `.oxfmtrc.json`) and **oxlint**; **husky** runs lint + format checks on every
+  commit and the unit tests on every push.
+- Build tooling (Vite, Vitest, oxlint, oxfmt, husky, Playwright) is dev-only
+  and does not ship to production; the production bundle is a single JS file +
+  CSS.
 
 ## Running
 
 ```bash
 pnpm install
-pnpm dev        # dev server (prints a local URL)
-pnpm build      # type-checks and produces dist/
-pnpm preview    # serves the production build
-pnpm test           # unit tests (Vitest)
-pnpm test:e2e   # end-to-end tests (Playwright, see e2e/)
-pnpm lint       # oxlint
+pnpm dev           # dev server (prints a local URL)
+pnpm build         # type-checks and produces dist/
+pnpm preview       # serves the production build
+pnpm test          # unit tests (Vitest)
+pnpm test:e2e      # end-to-end tests (Playwright, see e2e/)
+pnpm lint          # oxlint
+pnpm format        # format the code with oxfmt
+pnpm format:check  # verify formatting (formatting is enforced on staged files)
 ```
 
 To try it on a tablet, run `pnpm dev -- --host` and open the printed
@@ -31,12 +37,12 @@ Netlify, etc.) can serve `dist/`.
 
 ## Interactions
 
-| Gesture                  | Effect                                            |
-| ------------------------ | ------------------------------------------------- |
-| Drag a rectangle body    | Moves the rectangle                               |
-| Drag the corner handle   | Changes the corner radius (all four corners)      |
+| Gesture                  | Effect                                                                        |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| Drag a rectangle body    | Moves the rectangle                                                           |
+| Drag the corner handle   | Changes the corner radius (all four corners)                                  |
 | `+ Add rectangle` button | Appends a rectangle (random size within min/max limits) near the stage center |
-| Mouse, pen or touch      | Pointer Events + pointer capture unify all input  |
+| Mouse, pen or touch      | Pointer Events + pointer capture unify all input                              |
 
 ## Public API
 
@@ -50,13 +56,13 @@ window.rectanglesData = [{ id: 0, x: 100, y: 100, width: 200, height: 150, radiu
 
 ```ts
 const rect = application.getRectById(1); // Rectangle | null
-rect.setSize(100, 100);                  // set size (clamped to >= 0)
-rect.setPosition(10, 10);                // set position
-rect.setCornerRadius(5);                 // radius of all 4 corners
-rect.toJSON();                           // { id, x, y, width, height, radius }
+rect.setSize(100, 100); // set size (clamped to >= 0)
+rect.setPosition(10, 10); // set position
+rect.setCornerRadius(5); // radius of all 4 corners
+rect.toJSON(); // { id, x, y, width, height, radius }
 
 application.addRectangle({ id, x, y, width, height, radius }); // create at runtime
-application.nextId();                                          // next free id
+application.nextId(); // next free id
 ```
 
 - Setters are chainable and clamp the corner radius to `[0, min(width, height) / 2]`
@@ -77,7 +83,7 @@ against the built app (see `e2e/editor.spec.ts`).
 - `pnpm test` — unit tests for the framework-free model/store layer (Vitest).
 - `pnpm test:e2e` — Playwright tests against the production build
   (`vite preview` is started automatically), in Chromium, Firefox and WebKit.
-  First run requires `npx playwright install` to download the browsers.
+  First run requires `pnpm exec playwright install` to download the browsers.
 
 Covered end-to-end: the task-description scenario through the public API
 (including its live effect on the UI), initial rendering from the sample and
@@ -85,6 +91,18 @@ from a global `rectanglesData` list, moving by dragging the body, corner-radius
 editing by dragging the handle (all four corners, clamped at the maximum),
 the selection highlight, z-order/color stability, and adding new rectangles
 at runtime.
+
+## Code style & Git hooks
+
+- `oxfmt` formats the code with React-recommended options (double quotes in
+  JSX, single quotes elsewhere, trailing commas, 100 print width — see
+  `.oxfmtrc.json`); `pnpm format` fixes, `pnpm format:check` verifies.
+- husky hooks (activate automatically after `pnpm install` via the `prepare`
+  script, which requires a git repository):
+  - `.husky/pre-commit` — **lint-staged**: runs `oxlint --fix` and `oxfmt
+--write` only on the staged files (the ones being committed) and re-stages
+    them; the commit is rejected if lint errors cannot be auto-fixed
+  - `.husky/pre-push` — unit tests (`pnpm test`)
 
 ## Architecture
 

@@ -11,11 +11,7 @@ interface RectangleShapeProps {
   rectangle: Rectangle;
   colors: RectangleColors;
   active: boolean;
-  onDragStart: (
-    rectangle: Rectangle,
-    mode: DragMode,
-    event: ReactPointerEvent<SVGElement>,
-  ) => void;
+  onDragStart: (rectangle: Rectangle, mode: DragMode, event: ReactPointerEvent<SVGElement>) => void;
 }
 
 /**
@@ -23,12 +19,7 @@ interface RectangleShapeProps {
  * reactive: it never modifies the model, it only reads it (an ancestor
  * re-renders the whole stage whenever any model reports a change).
  */
-export const RectangleShape = ({
-  rectangle,
-  colors,
-  active,
-  onDragStart,
-}: RectangleShapeProps) => {
+export const RectangleShape = ({ rectangle, colors, active, onDragStart }: RectangleShapeProps) => {
   const { x, y, width, height, radius } = rectangle;
   const { fill, selectionStroke } = colors;
   const handleX = x + width - radius;

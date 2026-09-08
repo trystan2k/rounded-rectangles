@@ -1,16 +1,19 @@
 {
   "name": "rounded-rectangles",
-  "private": true,
   "version": "1.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "husky"
   },
   "dependencies": {
     "react": "~19.2.8",
@@ -22,9 +25,21 @@
     "@types/react": "~19.2.18",
     "@types/react-dom": "~19.2.4",
     "@vitejs/plugin-react": "~6.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.0",
+    "oxfmt": "^0.67.0",
     "oxlint": "~1.79.0",
     "typescript": "~6.0.2",
     "vite": "~8.2.2",
     "vitest": "~5.0.0"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}": [
+      "oxlint --fix",
+      "oxfmt --write"
+    ],
+    "*.{json,jsonc,css,html,md}": [
+      "oxfmt --write"
+    ]
   }
 }

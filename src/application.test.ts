@@ -62,7 +62,12 @@ describe('Application', () => {
     const rect = app.addRectangle({ id: 5, x: 1, y: 2, width: 30, height: 20, radius: 4 });
 
     expect(app.getRectById(5)?.toJSON()).toEqual({
-      id: 5, x: 1, y: 2, width: 30, height: 20, radius: 4,
+      id: 5,
+      x: 1,
+      y: 2,
+      width: 30,
+      height: 20,
+      radius: 4,
     });
     expect(app.getRectangles()).toHaveLength(3);
     expect(listener).toHaveBeenCalledTimes(1);
