@@ -7,14 +7,29 @@ import { colorsForId } from '../palette';
 import { RectangleShape } from './RectangleShape';
 
 interface DragState {
+  // The pointer ID of the current drag.
   pointerId: number;
+  // The rectangle being dragged.
   rectangle: Rectangle;
+  // The drag mode of the current drag, if user is dragging the rectangle itself or the radius handle.
   mode: DragMode;
+  // The mouse pointer start postition in X axis, in stage container coordinates. Used to calculate how much
+  // the pointer moved since drag started
   startPointerX: number;
+  // The mouse pointer start postition in Y axis, in stage container coordinates. Used to calculate how much
+  // the pointer moved since drag started
   startPointerY: number;
+  // The start position in X axis of the rectangle. Used to calculate how much
+  // the rectangle moved since drag started
   startPositionX: number;
+  // The start position in Y axis of the rectangle. Used to calculate how much
+  // the rectangle moved since drag started
   startPositionY: number;
+  // The start position in X axis of the right corner of the rectangle. Base point of the radious dragger, to
+  // calculate the new radius of the rectangle.
   startCornerX: number;
+  // The start position in Y axis of the right corner of the rectangle. Base point of the radious dragger, to
+  // calculate the new radius of the rectangle.
   startCornerY: number;
 }
 
@@ -23,7 +38,7 @@ interface StageProps {
 }
 
 /**
- * The SVG stage: renders all rectangles and owns the pointer interactions
+ * The Stage: renders all rectangles and owns the pointer interactions
  * (drag body = move, drag corner handle = corner radius). Pointer capture on
  * the stage keeps the gesture running even when the pointer leaves the element
  * or the window. The SVG has no viewBox and fills the viewport, so 1 SVG unit
@@ -31,18 +46,25 @@ interface StageProps {
  */
 export const Stage = ({ application }: StageProps) => {
   const stageRef = useRef<SVGSVGElement>(null);
+
+  // This is where all drag information (startPosition, startPointer, startCorner) is stored.
+  // It uses a useRef instead of useState to avoid re-renders while the rectangle is being dragged.
+  // The values stored in here are then used to calculate the new position of the rectangle once drag ends.
   const dragRef = useRef<DragState | null>(null);
   const [activeId, setActiveId] = useState<number | null>(null);
 
   const rectangles = application.getRectangles();
 
+  // Called when user starts to drag the rectangle. Store the initial position of the rectangle.
+  // Returns true if the drag was started, false when it was rejected
+  // (another drag is already running, or the stage is not mounted yet).
   const handleDragStart = (
     rectangle: Rectangle,
     mode: DragMode,
     event: ReactPointerEvent<SVGElement>,
-  ) => {
+  ): boolean => {
     const stage = stageRef.current;
-    if (!stage || dragRef.current) return;
+    if (!stage || dragRef.current) return false;
     event.preventDefault();
 
     stage.setPointerCapture(event.pointerId);
@@ -61,8 +83,12 @@ export const Stage = ({ application }: StageProps) => {
       startCornerY: rectangle.y,
     };
     setActiveId(rectangle.id);
+    return true;
   };
 
+  // This is executed everytime the mouse pointer moves dragging the rectangle or the border radius handler.
+  // It keeps updating the rectangle position and the radius handler position while the user moves the mouse pointer
+  // .
   const handlePointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
     const drag = dragRef.current;
     const stage = stageRef.current;
@@ -80,13 +106,14 @@ export const Stage = ({ application }: StageProps) => {
       return;
     }
 
-    // The handle sits on the corner diagonal, at distance radius * sqrt(2)
-    // from the corner, so the radius follows directly from the pointer
-    // distance and the handle always stays under the pointer.
+    // Handle lies on the 45° corner diagonal at distance = r*SQRT2 from the corner.
+    // Measure pointer distance via hypot(), then divide by SQRT2 to recover r so
+    // the handle stays exactly under the cursor during the drag.
     const distance = Math.hypot(drag.startCornerX - pointX, drag.startCornerY - pointY);
     drag.rectangle.setCornerRadius(distance / Math.SQRT2);
   };
 
+  // This is when user release drag. It resets the drag state and the activeId.
   const handlePointerEnd = (event: ReactPointerEvent<SVGSVGElement>) => {
     if (dragRef.current?.pointerId !== event.pointerId) return;
     dragRef.current = null;

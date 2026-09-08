@@ -30,6 +30,21 @@ const strokeWidthOf = async (page: Page, id: number): Promise<number> =>
     return parseFloat(getComputedStyle(rect).strokeWidth);
   }, id);
 
+/**
+ * Resolved (computed) value of a rectangle body's `fill`/`stroke`, as a list
+ * of numbers. Colors are CSS custom properties applied via inline styles, so
+ * the resolved rgb/rgba components are asserted instead of attributes
+ * (e.g. [142, 36, 170] for #8e24aa, [0, 0, 0, 0.35] for rgba(0, 0, 0, 0.35)).
+ */
+const colorOf = async (page: Page, id: number, property: 'fill' | 'stroke'): Promise<number[]> =>
+  page.evaluate(
+    ([rectId, prop]) => {
+      const rect = document.querySelector(`g[aria-label="Rectangle ${rectId}"] rect`)!;
+      return (getComputedStyle(rect)[prop].match(/[\d.]+/g) ?? []).map(Number);
+    },
+    [id, property] as const,
+  );
+
 test.describe('rounded rectangle editor', () => {
   test('renders the initial scene from the task description', async ({ page }) => {
     await page.goto('/');
@@ -152,7 +167,8 @@ test.describe('rounded rectangle editor', () => {
   test('shows a wide bright border on the selected rectangle', async ({ page }) => {
     await page.goto('/');
 
-    await expect(body(page, 0)).toHaveAttribute('stroke', 'rgba(0, 0, 0, 0.35)');
+    // Hairline dark border while unselected.
+    expect(await colorOf(page, 0, 'stroke')).toEqual([0, 0, 0, 0.35]);
     expect(await strokeWidthOf(page, 0)).toBe(1.5);
 
     const box = (await body(page, 0).boundingBox())!;
@@ -163,13 +179,13 @@ test.describe('rounded rectangle editor', () => {
     await page.mouse.down();
 
     // Bright companion color of the purple fill + wider border while selected.
-    await expect(body(page, 0)).toHaveAttribute('stroke', '#e254ff');
+    expect(await colorOf(page, 0, 'stroke')).toEqual([226, 84, 255]);
     expect(await strokeWidthOf(page, 0)).toBe(4);
     await expect(group(page, 0)).toHaveClass(/active/);
 
     await page.mouse.up();
 
-    await expect(body(page, 0)).toHaveAttribute('stroke', 'rgba(0, 0, 0, 0.35)');
+    expect(await colorOf(page, 0, 'stroke')).toEqual([0, 0, 0, 0.35]);
     expect(await strokeWidthOf(page, 0)).toBe(1.5);
     await expect(group(page, 0)).not.toHaveClass(/active/);
   });
@@ -177,8 +193,10 @@ test.describe('rounded rectangle editor', () => {
   test('raises the dragged rectangle to the front and keeps its color stable', async ({ page }) => {
     await page.goto('/');
 
-    await expect(body(page, 0)).toHaveAttribute('fill', '#8e24aa');
-    await expect(body(page, 1)).toHaveAttribute('fill', '#1e88e5');
+    // Purple fill for rect 0, blue for rect 1 — resolved from the palette
+    // CSS custom properties.
+    expect(await colorOf(page, 0, 'fill')).toEqual([142, 36, 170]);
+    expect(await colorOf(page, 1, 'fill')).toEqual([30, 136, 229]);
 
     const box = (await body(page, 0).boundingBox())!;
     await drag(
@@ -195,8 +213,8 @@ test.describe('rounded rectangle editor', () => {
     expect(order.at(-1)).toBe('Rectangle 0');
 
     // Colors must not shuffle when the z-order changes.
-    await expect(body(page, 0)).toHaveAttribute('fill', '#8e24aa');
-    await expect(body(page, 1)).toHaveAttribute('fill', '#1e88e5');
+    expect(await colorOf(page, 0, 'fill')).toEqual([142, 36, 170]);
+    expect(await colorOf(page, 1, 'fill')).toEqual([30, 136, 229]);
   });
 
   test('adds new rectangles at runtime', async ({ page }) => {

@@ -1,6 +1,6 @@
 import type { RectangleData } from './rectangle';
 
-/** Size limits for newly added rectangles (the model/API itself has no limits). */
+// Max and min width and height of the generated rectangles.
 export const SPAWN_LIMITS = {
   minWidth: 80,
   maxWidth: 320,
@@ -17,10 +17,12 @@ const randomBetween = (min: number, max: number, random: () => number) =>
   min + random() * (max - min);
 
 /**
- * Data for a freshly added rectangle: a random size within the spawn limits,
- * a corner radius that always fits the rolled size, placed near the center of
- * the stage and offset in a cascade (based on the id) so consecutive
- * rectangles never overlap exactly.
+ * Function to generate a new rectangle to be added to the application.
+ *
+ * It generates a rectangle with:
+ * - Id: a unique number.
+ * - Position: near the center of the stage, offset in a cascade (based on the id).
+ * - Size: within the spawn limits, with a corner radius that always fits the spawn limits,
  */
 export const createSpawnData = (
   id: number,
@@ -28,15 +30,17 @@ export const createSpawnData = (
   stageHeight: number,
   random: () => number = Math.random,
 ): RectangleData => {
+  // Generate random width and height within the spawn limits.
   const width = Math.round(randomBetween(SPAWN_LIMITS.minWidth, SPAWN_LIMITS.maxWidth, random));
   const height = Math.round(randomBetween(SPAWN_LIMITS.minHeight, SPAWN_LIMITS.maxHeight, random));
-  // Floor the size-based cap: rounding the radius itself could push it above
-  // min(width, height) / 2 when that is fractional (e.g. height 69 -> 34.5).
+
+  // Get the min radius between the random radius and the size-based cap.
   const radius = Math.min(
     Math.round(MIN_RADIUS + random() * (MAX_RADIUS - MIN_RADIUS)),
     Math.floor(Math.min(width, height) / 2),
   );
 
+  // Calculate the offset of the next rectangle in the cascade, so they are not overlapping completely.
   const offset = (((id % CASCADE_SLOTS) + CASCADE_SLOTS) % CASCADE_SLOTS) * CASCADE_STEP;
   return {
     id,

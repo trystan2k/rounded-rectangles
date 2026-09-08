@@ -1,4 +1,46 @@
+/*
+ * Design tokens — the single place to re-theme the app.
+ * Colors are plain CSS custom properties; the rectangle palette is referenced
+ * from src/palette.ts as var(--palette-N-fill) / var(--palette-N-selection),
+ * so keep exactly PALETTE_SIZE (6) pairs in sync with it.
+ */
 :root {
+  /* Rectangle palette (Material color pairs: fill + bright selection stroke). */
+  --palette-0-fill: #8e24aa; /* purple */
+  --palette-0-selection: #e254ff;
+  --palette-1-fill: #1e88e5; /* blue */
+  --palette-1-selection: #82b1ff;
+  --palette-2-fill: #43a047; /* green */
+  --palette-2-selection: #69f0ae;
+  --palette-3-fill: #fb8c00; /* orange */
+  --palette-3-selection: #ffd180;
+  --palette-4-fill: #00897b; /* teal */
+  --palette-4-selection: #64ffda;
+  --palette-5-fill: #d81b60; /* pink */
+  --palette-5-selection: #ff80ab;
+
+  /* Other colors. */
+  --rectangle-stroke: rgba(0, 0, 0, 0.35);
+  --handle-fill: #ffffff;
+  --handle-ring: #1e88e5;
+  --stage-dot: rgba(0, 0, 0, 0.07);
+  --hint-background: rgba(33, 33, 33, 0.78);
+  --hint-text: #ffffff;
+  --button-border: #b9c4cf;
+  --button-background: #ffffff;
+  --button-background-hover: #f2f6fa;
+  --button-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+
+  /* Spacing & radii (the distinct values used by this UI, smallest first). */
+  --space-1: 6px; /* button padding, block direction */
+  --space-2: 8px; /* hint padding, block direction */
+  --space-3: 12px; /* toolbar offsets */
+  --space-4: 14px; /* hint offset from the bottom, button padding, inline direction */
+  --space-5: 16px; /* hint padding, inline direction */
+  --radius-button: 6px;
+  --radius-hint: 16px;
+  --dot-grid-size: 24px;
+
   font-family:
     system-ui,
     -apple-system,
@@ -27,8 +69,8 @@ body {
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  background-image: radial-gradient(rgba(0, 0, 0, 0.07) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(var(--stage-dot) 1px, transparent 1px);
+  background-size: var(--dot-grid-size) var(--dot-grid-size);
 }
 
 .rectangle rect {
@@ -42,8 +84,8 @@ body {
 }
 
 .rectangle .radius-handle {
-  fill: #ffffff;
-  stroke: #1e88e5;
+  fill: var(--handle-fill);
+  stroke: var(--handle-ring);
   stroke-width: 2;
   cursor: grab;
 }
@@ -62,14 +104,14 @@ body {
 .hint {
   position: fixed;
   left: 50%;
-  bottom: 14px;
+  bottom: var(--space-4);
   transform: translateX(-50%);
   max-width: 92%;
   margin: 0;
-  padding: 8px 16px;
-  border-radius: 16px;
-  background: rgba(33, 33, 33, 0.78);
-  color: #fff;
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-hint);
+  background: var(--hint-background);
+  color: var(--hint-text);
   font-size: 13px;
   text-align: center;
   pointer-events: none;
@@ -77,20 +119,20 @@ body {
 
 .toolbar {
   position: fixed;
-  top: 12px;
-  right: 12px;
+  top: var(--space-3);
+  right: var(--space-3);
 }
 
 .toolbar button {
-  padding: 6px 14px;
-  border: 1px solid #b9c4cf;
-  border-radius: 6px;
-  background: #fff;
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--button-border);
+  border-radius: var(--radius-button);
+  background: var(--button-background);
   font-size: 13px;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--button-shadow);
 }
 
 .toolbar button:hover {
-  background: #f2f6fa;
+  background: var(--button-background-hover);
 }

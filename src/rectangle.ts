@@ -73,10 +73,12 @@ export class Rectangle extends EventTarget {
     };
   }
 
+  // Clamp the radius to [0, maxRadius].
   private clampRadius(radius: number): number {
     return Math.min(Math.max(radius, 0), this.maxRadius);
   }
 
+  // Emit a change event to notify subscribers.
   private emitChange(): this {
     this.dispatchEvent(new Event('change'));
     return this;

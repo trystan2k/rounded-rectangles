@@ -5,13 +5,24 @@ import type { RectangleColors } from '../palette';
 
 const HANDLE_RADIUS = 5.5;
 const HANDLE_HIT_RADIUS = 16;
-const DEFAULT_STROKE = 'rgba(0, 0, 0, 0.35)';
+// CSS custom property from index.css. Applied via inline style (not the stroke
+// attribute) because SVG presentation attributes cannot hold var() references.
+const DEFAULT_STROKE = 'var(--rectangle-stroke)';
 
 interface RectangleShapeProps {
+  // The rectangle to render.
   rectangle: Rectangle;
+  // The colors to use for the rectangle.
   colors: RectangleColors;
+  // Whether the rectangle is active, been dragged.
   active: boolean;
-  onDragStart: (rectangle: Rectangle, mode: DragMode, event: ReactPointerEvent<SVGElement>) => void;
+  // Called when the user starts dragging the rectangle, to the parent.
+  // Returns true if the drag should continue, false otherwise.
+  onDragStart: (
+    rectangle: Rectangle,
+    mode: DragMode,
+    event: ReactPointerEvent<SVGElement>,
+  ) => boolean;
 }
 
 /**
@@ -37,8 +48,7 @@ export const RectangleShape = ({ rectangle, colors, active, onDragStart }: Recta
         height={height}
         rx={radius}
         ry={radius}
-        fill={fill}
-        stroke={active ? selectionStroke : DEFAULT_STROKE}
+        style={{ fill, stroke: active ? selectionStroke : DEFAULT_STROKE }}
         onPointerDown={(event) => onDragStart(rectangle, 'move', event)}
       />
       {/* Invisible, generous touch target behind the visible handle (tablets). */}

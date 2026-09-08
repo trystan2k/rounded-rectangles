@@ -40,7 +40,11 @@ export class Application {
     return rect;
   }
 
-  /** Brings a rectangle to the front of the render order. */
+  /** Brings a rectangle to the front of the render order, so it is rendered
+   * on top of all other rectangles and make the UX more intuitive, specially when dragging.
+   * And since we use a map to render them, remove and add it again, will move it to the last
+   * position of the map, which will be the last rendered and so on top of all other rectangles.
+   */
   bringToFront(id: number): void {
     const rect = this.rectangles.get(id);
     if (!rect) return;
@@ -49,6 +53,7 @@ export class Application {
     this.notify();
   }
 
+  // Create a subscribe function to allow React to subscribe to the store.
   subscribe = (listener: StoreListener): (() => void) => {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
@@ -60,6 +65,7 @@ export class Application {
     this.notify();
   };
 
+  // Notify all subscribers that the model has changed.
   private notify(): void {
     this.version += 1;
     this.listeners.forEach((listener) => listener());
