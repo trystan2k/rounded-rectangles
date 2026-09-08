@@ -54,7 +54,18 @@ jobs:
 
       - name: Deploy to Vercel (production)
         if: success() && github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: npx vercel@latest deploy --prod --yes --token "$VERCEL_TOKEN"
+        run: |
+          VERCEL_OUTPUT=$(npx vercel@latest deploy --prod --yes --token "$VERCEL_TOKEN")
+          DEPLOY_URL=$(printf '%s\n' "$VERCEL_OUTPUT" | grep -oE 'https://[^[:space:]]+' | tail -n 1)
+          if [ -z "$DEPLOY_URL" ]; then
+            echo "Could not parse deployment URL from Vercel output"
+            exit 1
+          fi
+          {
+            echo '## 🚀 Vercel production deployment'
+            echo ''
+            echo "Deployed to: $DEPLOY_URL"
+          } >> "$GITHUB_STEP_SUMMARY"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
